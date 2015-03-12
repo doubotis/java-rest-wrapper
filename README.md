@@ -10,8 +10,8 @@ Some main features this java wrapper have :
 
 ## How to use
 
-### Specify new API
-To specify new API, use the command.api file. The file is like a single .txt file structured as `<HTTP supported methods> <Servlet name> <regex url>`.
+### Specify new Resource
+To specify new resource, use the command.api file. The file is like a single .txt file structured as `<HTTP supported methods> <Servlet name> <regex url>`. Each line is a resource that can be accessed by several HTTP methods. The resource is specified with a regex.
 
 Example :
 ```
@@ -22,3 +22,37 @@ GET POST Me /me
 GET POST MeTrails /me/trails
 ```
 
+### Servlet Example
+For above example, let's see the `GET Base /` line.
+Create a `Base` class implementing `IGetHandler` because this is the only supported method.
+Next, override the get method, like that :
+```java
+@Override
+public void get(HttpServletRequest request, HttpServletResponse resp, JSONWriter jw) throws Exception
+{
+    PrintWriter pw = resp.getWriter();
+    resp.setStatus(200);
+    
+    JSONObject obj = new JSONObject();
+    obj.put("version", 10000);
+    obj.put("compilation_date", new Date().getTime());
+    jw.putDataObject(obj);
+    
+}
+```
+
+### Throwing exceptions
+If something goes wrong into the process, you can throw many exceptions :
+* BadRequestException : means parameters of this resource are missing or wrong.
+* ForbiddenAccessException : the access to this resource is forbidden.
+* InternalErrorException : the server encountered an internal error.
+* HTTPException : the base exception class.
+* NotImplementedException : the resource is not implemented yet.
+* ResourceNotFoundException : the resource cannot be found. Useful when using regex for asking a specific username for instance.
+* TooManyRequestsException : the resource cannot be accessed because the user have done too many requests.
+* UnauthorizedAccessException : the resource is not authorized, but can be authorized by specifying some details.
+* UnavailableServiceException : the resource is not available.
+
+Each of these exceptions handle the status HTTP code and wrap the stack exception to allow external users to debug what is wrong. You can add a detailed description of the exception by using the `setMessage()` method.
+
+By specifying the header `X-Show-Stacktrace` any user can see the entire stack exception. You can of course limit the use of this header to specific users.
