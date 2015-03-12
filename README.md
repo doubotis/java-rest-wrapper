@@ -56,3 +56,23 @@ If something goes wrong into the process, you can throw many exceptions :
 Each of these exceptions handle the status HTTP code and wrap the stack exception to allow external users to debug what is wrong. You can add a detailed description of the exception by using the `setMessage()` method.
 
 By specifying the header `X-Show-Stacktrace` any user can see the entire stack exception. You can of course limit the use of this header to specific users.
+
+## Utils
+This wrapper comes with some class utilities, like a SQL Builder, allowing to make requests like that :
+```java
+String req = new SQLServerBuilder().select("USERS.login", "USERS.gold", "USERS.email", 
+                                        "USERS.name", "USERS.firstname", "USERS.address", 
+                                        "Users.portal_code", "USERS.city", "Pays.Pays AS country",
+                                        "USERS.departement", "USERS.LangMat", "Users.Etoiles", 
+                                        "USERS.alias_auteur", "USERS.birth_date", 
+                                        "USERS.godfather", "COALESCE (UserPoints.points, 0) AS pts")
+                                    .from("USERS")
+                                    .leftOuterJoin("UserPoints", "Users.login = UserPoints.user_id")
+                                    .innerJoin("Pays", "USERS.country = Pays.ID")
+                                    .where("USERS.login LIKE ?")
+                                    .toString();
+stmt = conn.prepareStatement(req);
+stmt.setString(1, username);
+rs = stmt.executeQuery();
+// Rest of code
+```
