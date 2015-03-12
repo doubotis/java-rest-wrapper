@@ -57,6 +57,17 @@ Each of these exceptions handle the status HTTP code and wrap the stack exceptio
 
 By specifying the header `X-Show-Stacktrace` any user can see the entire stack exception. You can of course limit the use of this header to specific users.
 
+### Write documentation
+
+The `doc` package can be used to write some documentation wiki. The documentation page is based on WikiCreole markup with a Bootstrap template. Add .txt files into the `doc` package. For the above example :
+
+```
+Base.txt
+Base_GET.txt
+Base_POST.txt
+```
+If you do not write any documentation the resource will have a clean wiki page.
+
 ## Utils
 This wrapper comes with some class utilities, like a SQL Builder, allowing to make requests like that :
 ```java
@@ -64,8 +75,7 @@ String req = new SQLServerBuilder().select("USERS.login", "USERS.gold", "USERS.e
                                         "USERS.name", "USERS.firstname", "USERS.address", 
                                         "Users.portal_code", "USERS.city", "Pays.Pays AS country",
                                         "USERS.departement", "USERS.LangMat", "Users.Etoiles", 
-                                        "USERS.alias_auteur", "USERS.birth_date", 
-                                        "USERS.godfather", "COALESCE (UserPoints.points, 0) AS pts")
+                                        "USERS.alias_auteur", "USERS.birth_date", "COALESCE (UserPoints.points, 0) AS pts")
                                     .from("USERS")
                                     .leftOuterJoin("UserPoints", "Users.login = UserPoints.user_id")
                                     .innerJoin("Pays", "USERS.country = Pays.ID")
