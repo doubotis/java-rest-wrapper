@@ -45,7 +45,7 @@ public void get(HttpServletRequest request, HttpServletResponse resp) throws Exc
 ```
 
 ### Subclassing NativeImpl class
-`NativeImpl` class is the base class for all implementation classes. You can extends this to add custom code to automatically login to your database when the implementation class is destroyed, and close the connection when the implementation class is destroyed.
+`NativeImpl` class is the base class for all implementation classes. You can extends this to add custom code to automatically login to your database when the implementation class is created, and close the connection when the implementation class is destroyed.
 
 ```
 public class ConnectedImpl extends NativeImpl
