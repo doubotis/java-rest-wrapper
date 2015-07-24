@@ -1,0 +1,4 @@
+# Here is a GET sample
+GET Base /
+# Here is a GET and POST sample
+GET POST PostSample /sample
