@@ -7,11 +7,12 @@ Some main features this java wrapper have :
 * Basic API Documentation support
 * Code of all requests are separated by files
 * Using reflexion to make coding easier
+* Bootstrap project that allows you to customize exactly how you want.
 
 ## How to use
 
 ### Specify new Resource
-To specify new resource, use the command.api file. The file is like a single .txt file structured as `<HTTP supported methods> <Servlet name> <regex url>`. Each line is a resource that can be accessed by several HTTP methods. The resource is specified with a regex.
+To specify new resource, use the _resource.txt file. The file is like a single .txt file structured as `<HTTP supported methods> <Servlet name> <regex url>`. Each line is a resource that can be accessed by several HTTP methods. The resource is specified with a regex.
 
 Example :
 ```
@@ -22,13 +23,15 @@ GET POST Me /me
 GET POST MeTrails /me/trails
 ```
 
+You can specify a specific URL path to access this file by modifying the `Constants` class.
+
 ### Servlet Example
 For above example, let's see the `GET Base /` line.
-Create a `Base` class implementing `IGetHandler` because this is the only supported method.
+Create a `Base` class extending `NativeImpl` and implementing `IGetHandler` because this is the only supported method.
 Next, override the get method, like that :
 ```java
 @Override
-public void get(HttpServletRequest request, HttpServletResponse resp, JSONWriter jw) throws Exception
+public void get(HttpServletRequest request, HttpServletResponse resp) throws Exception
 {
     PrintWriter pw = resp.getWriter();
     resp.setStatus(200);
@@ -36,9 +39,43 @@ public void get(HttpServletRequest request, HttpServletResponse resp, JSONWriter
     JSONObject obj = new JSONObject();
     obj.put("version", 10000);
     obj.put("compilation_date", new Date().getTime());
-    jw.putDataObject(obj);
     
+    return obj;
 }
+```
+
+### Subclassing NativeImpl class
+`NativeImpl` class is the base class for all implementation classes. You can extends this to add custom code to automatically login to your database when the implementation class is destroyed, and close the connection when the implementation class is destroyed.
+
+```
+public class ConnectedImpl extends NativeImpl
+{
+    @Override
+    public void onCreate(HttpServletRequest request, HttpServletResponse resp) {
+        // Do something here when the implementation class is created (open DBs ?).
+    }
+
+    @Override
+    public void onFinish() {
+        // Do something here when the implementation class is destroyed (close DBs ?).
+    }
+}
+```
+
+### Managing SSO
+A basic SSO system is created on this demo with an exemple named `DefaultSSO`. DefaultSSO extends an abstract class `SSO`, allowing you to test if some user has sufficient privileges to follow a request.
+
+You can set another SSO class by modifying this line in `ServletAPI` class :
+```
+request.setAttribute(NativeImpl.ATTRIBUTE_SSO, new DefaultSSO(ssoKey));
+```
+
+You can next control the way the SSO must be checked by controlling them inside implementation classes :
+
+```
+SSO sso = (SSO)request.getAttribute(Base.ATTRIBUTE_SSO);
+if (!sso.hasRole("test"))
+    throw new ForbiddenAccessException();
 ```
 
 ### Throwing exceptions
@@ -56,33 +93,3 @@ If something goes wrong into the process, you can throw many exceptions :
 Each of these exceptions handle the status HTTP code and wrap the stack exception to allow external users to debug what is wrong. You can add a detailed description of the exception by using the `setMessage()` method.
 
 By specifying the header `X-Show-Stacktrace` any user can see the entire stack exception. You can of course limit the use of this header to specific users.
-
-### Write documentation
-
-The `doc` package can be used to write some documentation wiki. The documentation page is based on WikiCreole markup with a Bootstrap template. Add .txt files into the `doc` package. For the above example :
-
-```
-Base.txt
-Base_GET.txt
-Base_POST.txt
-```
-If you do not write any documentation the resource will have a clean wiki page.
-
-## Utils
-This wrapper comes with some class utilities, like a SQL Builder, allowing to make requests like that :
-```java
-String req = new SQLServerBuilder().select("USERS.login", "USERS.gold", "USERS.email", 
-                                        "USERS.name", "USERS.firstname", "USERS.address", 
-                                        "Users.portal_code", "USERS.city", "Pays.Pays AS country",
-                                        "USERS.departement", "USERS.LangMat", "Users.Etoiles", 
-                                        "USERS.alias_auteur", "USERS.birth_date", "COALESCE (UserPoints.points, 0) AS pts")
-                                    .from("USERS")
-                                    .leftOuterJoin("UserPoints", "Users.login = UserPoints.user_id")
-                                    .innerJoin("Pays", "USERS.country = Pays.ID")
-                                    .where("USERS.login LIKE ?")
-                                    .toString();
-stmt = conn.prepareStatement(req);
-stmt.setString(1, username);
-rs = stmt.executeQuery();
-// Rest of code
-```
