@@ -3,10 +3,9 @@ Java Wrapper for managing easy Rest-based APIs
 
 ## Main features
 Some main features this java wrapper have :
-* HTML Page to test requests, with JSON colorization
-* Basic API Documentation support
 * Code of all requests are separated by files
 * Using reflexion to make coding easier
+* SSO base for authentication
 * Bootstrap project that allows you to customize exactly how you want.
 
 ## How to use
