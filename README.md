@@ -6,6 +6,7 @@ Some main features this java wrapper have :
 * Code of all requests are separated by files
 * Using reflexion to make coding easier
 * SSO base for authentication
+* Handle XML and JSON responses. You use objects, the wrapper does the conversion.
 * Bootstrap project that allows you to customize exactly how you want.
 
 ## How to use
@@ -72,9 +73,17 @@ request.setAttribute(NativeImpl.ATTRIBUTE_SSO, new DefaultSSO(ssoKey));
 You can next control the way the SSO must be checked by controlling them inside implementation classes :
 
 ```
-SSO sso = (SSO)request.getAttribute(Base.ATTRIBUTE_SSO);
+SSO sso = (SSO)request.getAttribute(NativeImpl.ATTRIBUTE_SSO);
 if (!sso.hasRole("test"))
     throw new ForbiddenAccessException();
+```
+
+### Managing API Requests
+Inside implementation classes, you can get an object describing completely the request the user does.
+```
+APIRequest api = (APIRequest)request.getAttribute(NativeImpl.ATTRIBUTE_API)
+String resource = api.getResource();
+String extension = api.getExtension();
 ```
 
 ### Throwing exceptions
