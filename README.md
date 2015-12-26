@@ -1,89 +1,77 @@
 # java-rest-wrapper
-Java Wrapper for managing easy Rest-based APIs
+Java Wrapper for managing easy API mechanism. Basic support for Rest or parameter-based APIs.
 
 ## Main features
 Some main features this java wrapper have :
+* Library to include to your project, easy to use
+* Configuration by subclassing or by configuring `web.xml`
 * Code of all requests are separated by files
-* Using reflexion to make coding easier
-* SSO base for authentication
-* Handle XML and JSON responses. You use objects, the wrapper does the conversion.
-* Bootstrap project that allows you to customize exactly how you want.
+* Supports SSO mechanisms
+* Handle many response types you want. Include XML and JSON response types by default. You use objects, the wrapper does the conversion.
 
 ## How to use
 
-### Specify new Resource
-To specify new resource, use the _resource.txt file. The file is like a single .txt file structured as `<HTTP supported methods> <Servlet name> <regex url>`. Each line is a resource that can be accessed by several HTTP methods. The resource is specified with a regex.
+### First steps
+1. Include the library jar into your project `library/dist/java-rest-wrapper.jar`.
+2. Make sure to also include all librairies inside the `lib/` folder.
 
-Example :
+### Way 1 : Subclassing `APIHttpServlet`
+
+The `APIHttpServlet` is the base Servlet to use with API mechanisms. Add a new class that extends `APIHttpServlet`. Put your configuration preferences inside the constructor. Here is an example :
+
 ```
-GET Base /
-GET POST Users /users
-GET POST DELETE User /users/([^/]+)
-GET POST Me /me
-GET POST MeTrails /me/trails
-```
+public class SampleAPIServletWithConstructor extends APIHttpServlet {
 
-You can specify a specific URL path to access this file by modifying the `Constants` class.
-
-### Servlet Example
-For above example, let's see the `GET Base /` line.
-Create a `Base` class extending `NativeImpl` and implementing `IGetHandler` because this is the only supported method.
-Next, override the get method, like that :
-```java
-@Override
-public void get(HttpServletRequest request, HttpServletResponse resp) throws Exception
-{
-    PrintWriter pw = resp.getWriter();
-    resp.setStatus(200);
+    public SampleAPIServletWithConstructor()
+    {
+        // We can specify various settings for the APIHttpServlet.
+        
+        // Sets the parameter identifiers that will be used for specific
+        // mechanics of the API.
+        setParameterAlias(APIHttpServlet.PARAMETER_SSO, "ssoKey");
+        
+        // Sets a custom SSO class.
+        setSSO(DefaultSSO.class);
+        
+        // Sets the dispatcher.
+        // The dispatcher serves as the element that will be used to
+        // find which class to instantiate and use for each request type.
+        Dispatcher dispatcher = new FileResourceDispatcher(Constants.RESOURCE_PATH);
+        setDispatcher(dispatcher);
+        
+        // Sets the return schemes the system can handle.
+        // By default, JSON and XML responses are managed, but
+        // you may need to add some other kind of responses, like
+        // default HTML or specific binary data.
+        // The first element of the array is used as the default behavior.
+        setReturnTypes(new DataResponse[] {
+            new JSONResponse(),
+            new XMLResponse()
+        });
+    }
     
-    JSONObject obj = new JSONObject();
-    obj.put("version", 10000);
-    obj.put("compilation_date", new Date().getTime());
-    
-    return obj;
 }
 ```
 
-### Subclassing NativeImpl class
-`NativeImpl` class is the base class for all implementation classes. You can extends this to add custom code to automatically login to your database when the implementation class is created, and close the connection when the implementation class is destroyed.
+You can get additional information about what are ReturnTypes and Dispatchers further.
+You can get a fully working example on the sample project.
+
+### Way 2 : Add configuration information into web.xml
+
+You can also use directly the `APIHttpServlet` class if you specify some parameters into your `web.wml` file :
 
 ```
-public class ConnectedImpl extends NativeImpl
-{
-    @Override
-    public void onCreate(HttpServletRequest request, HttpServletResponse resp) {
-        // Do something here when the implementation class is created (open DBs ?).
-    }
-
-    @Override
-    public void onFinish() {
-        // Do something here when the implementation class is destroyed (close DBs ?).
-    }
-}
-```
-
-### Managing SSO
-A basic SSO system is created on this demo with an exemple named `DefaultSSO`. DefaultSSO extends an abstract class `SSO`, allowing you to test if some user has sufficient privileges to follow a request.
-
-You can set another SSO class by modifying this line in `ServletAPI` class :
-```
-request.setAttribute(NativeImpl.ATTRIBUTE_SSO, new DefaultSSO(ssoKey));
-```
-
-You can next control the way the SSO must be checked by controlling them inside implementation classes :
-
-```
-SSO sso = (SSO)request.getAttribute(NativeImpl.ATTRIBUTE_SSO);
-if (!sso.hasRole("test"))
-    throw new ForbiddenAccessException();
-```
-
-### Managing API Requests
-Inside implementation classes, you can get an object describing completely the request the user does.
-```
-APIRequest api = (APIRequest)request.getAttribute(NativeImpl.ATTRIBUTE_API)
-String resource = api.getResource();
-String extension = api.getExtension();
+<servlet>
+        <servlet-name>SampleAPIServletWithConfig</servlet-name>
+        <servlet-class>com.doubotis.restwrapper.APIHttpServlet</servlet-class>
+        <init-params>
+            <aliases>
+                <alias key="sso" value="ssoKey" />
+            </aliases
+            <ssoClass>com.sample.YourSSOImplementation</ssoClass>
+            <dispatcherClass>com.sample.YourDispatcher</dispatcherClass>
+        </init-params>
+    </servlet>
 ```
 
 ### Throwing exceptions
