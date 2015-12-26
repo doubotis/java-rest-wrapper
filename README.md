@@ -1,6 +1,8 @@
 # java-rest-wrapper
 Java Wrapper for managing easy Rest-based APIs
 
+This is the old version of the java-rest-wrapper, please check the new version!
+
 ## Main features
 Some main features this java wrapper have :
 * HTML Page to test requests, with JSON colorization
