@@ -8,6 +8,7 @@ Some main features this java wrapper have :
 * Code of all requests are separated by files
 * Using reflexion to make coding easier
 
+
 ## How to use
 
 ### Specify new Resource
