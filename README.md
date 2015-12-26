@@ -76,16 +76,16 @@ You can also use directly the `APIHttpServlet` class if you specify some paramet
 
 ### Throwing exceptions
 If something goes wrong into the process, you can throw many exceptions :
+* HTTPException : the base exception class. Use of this exception is discouraged, prefer using another one.
 * BadRequestException : means parameters of this resource are missing or wrong.
 * ForbiddenAccessException : the access to this resource is forbidden.
 * InternalErrorException : the server encountered an internal error.
-* HTTPException : the base exception class.
 * NotImplementedException : the resource is not implemented yet.
 * ResourceNotFoundException : the resource cannot be found. Useful when using regex for asking a specific username for instance.
 * TooManyRequestsException : the resource cannot be accessed because the user have done too many requests.
 * UnauthorizedAccessException : the resource is not authorized, but can be authorized by specifying some details.
 * UnavailableServiceException : the resource is not available.
 
-Each of these exceptions handle the status HTTP code and wrap the stack exception to allow external users to debug what is wrong. You can add a detailed description of the exception by using the `setMessage()` method.
+You can put additional message for each of these exceptions. They handle the status HTTP code and wrap the stack exception to allow external users to debug what is wrong. You can add a detailed description of the exception by using the `setMessage()` method.
 
 By specifying the header `X-Show-Stacktrace` any user can see the entire stack exception. You can of course limit the use of this header to specific users.
