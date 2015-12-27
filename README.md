@@ -85,6 +85,7 @@ server to use different implementation files. For instance, a bootstrap Dispatch
 If you are interested by implementing a REST-based API, you can use `FileResourceDispatcher` that uses a file to detect what implementation class to run depending on the request path. See examples.
 
 To set a custom dispatcher, you can :
+
 1. Call `setDispatcher(Dispatcher dispatcher)` in a subclass of `APIHttpServlet` (override `onInit()` and put it inside).
 2. Tell the name of the class in `web.xml`. In this case, the `Dispatcher` subclass will be instantiated with an empty constructor.
 
@@ -93,16 +94,17 @@ To set a custom dispatcher, you can :
 This is optional. If you need your API be forbidden with a system of roles, you can extend the `SSO` abstract class to implement your own way to check. For instance, `DefaultSSO` returns true for every role asked, that means `DefaultSSO` will tell "yes" for all requests. But by overriding the `hasRole(String role)` method, you can modify this behavior to tell "no" when the role is not present for an API user key.
 
 To set a custom SSO, you can :
+
 1. Call `setSSO(SSO sso)` in a subclass of `APIHttpServlet` (override `onInit()` and put it inside).
 2. Tell the name of the class in `web.xml`. In this case, the `SSO` subclass will be instantiated with an empty constructor.
 
 ### Request Implementation Class
 
-These are the classes referenced inside your `Dispatcher` subclass. They are runned depending on parameters and the decision code you write inside the `Dispatcher` subclass. These classes must extend `RequestImplementation` and potentially implements one of many of the followings :
-* IGetHandler (for HTTP GET)
-* IPostHandler (for HTTP POST)
-* IPutHandler (for HTTP PUT)
-* IDeleteHandler (for HTTP DELETE)
+These are the classes referenced inside your `Dispatcher` subclass. They are runned depending on parameters and the decision code you write inside the `Dispatcher` subclass. These classes must extend `RequestImplementation` and potentially implements one or many of the followings :
+* `IGetHandler` (for HTTP GET)
+* `IPostHandler` (for HTTP POST)
+* `IPutHandler` (for HTTP PUT)
+* `IDeleteHandler` (for HTTP DELETE)
 
 Override the `onInit(HttpServletRequest request, HttpServletResponse resp)` to include all process to open DB or files you want, and `onFinish()` to include all process to close DB, files or dispose things you want.
 
