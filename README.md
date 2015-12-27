@@ -22,7 +22,8 @@ The `APIHttpServlet` is the base Servlet to use with API logic. Add a new class 
 ```
 public class SampleAPIServletWithConstructor extends APIHttpServlet {
 
-    public SampleAPIServletWithConstructor()
+    @Override
+    public void onSetup()
     {
         // We can specify various settings for the APIHttpServlet.
         
@@ -57,21 +58,30 @@ You can get a fully working example on the sample project.
 
 ### Way 2 : Add configuration information into web.xml
 
-You can also use directly the `APIHttpServlet` class if you specify some parameters into your `web.wml` file :
+You can also use directly the `DefaultAPIHttpServlet` class if you specify some parameters into your `web.wml` file :
 
 ```
 <servlet>
-        <servlet-name>SampleAPIServletWithConfig</servlet-name>
-        <servlet-class>com.doubotis.restwrapper.APIHttpServlet</servlet-class>
-        <init-params>
-            <aliases>
-                <alias key="sso" value="ssoKey" />
-            </aliases
-            <ssoClass>com.sample.YourSSOImplementation</ssoClass>
-            <dispatcherClass>com.sample.YourDispatcher</dispatcherClass>
-        </init-params>
-    </servlet>
+    <servlet-name>SampleAPIServletWithConfig</servlet-name>
+    <servlet-class>com.doubotis.restwrapper.APIHttpServlet</servlet-class>
+    <init-param>
+        <param-name>ssoClass</param-name>
+        <param-value>com.doubotis.restwrapper.sample.SampleSSO</param-value>
+    </init-param>
+    <init-param>
+        <param-name>dispatcherClass</param-name>
+        <param-value>com.doubotis.restwrapper.sample.CasePerCaseDispatcher</param-value>
+    </init-param>
+    <init-param>
+        <param-name>returnTypes</param-name>
+        <param-value>json,xml</param-value>
+    </init-param>
+</servlet>
 ```
+
+In this case, the dispatcher class and the SSO class will be instantiated from an empty constructor.
+You cannot set more return types when choosing the `web.xml` way.
+If you need advanced customization, it's advised to use the first way.
 
 ## Setup Configuration
 
