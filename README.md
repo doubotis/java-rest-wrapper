@@ -58,15 +58,15 @@ You can get a fully working example on the sample project.
 
 ### Way 2 : Add configuration information into web.xml
 
-You can also use directly the `DefaultAPIHttpServlet` class if you specify some parameters into your `web.wml` file :
+You can also use directly the `DefaultAPIHttpServlet` class if you specify some parameters into your `web.xml` file :
 
 ```
 <servlet>
     <servlet-name>SampleAPIServletWithConfig</servlet-name>
-    <servlet-class>com.doubotis.restwrapper.APIHttpServlet</servlet-class>
+    <servlet-class>com.doubotis.restwrapper.servlet.api.DefaultAPIHttpServlet</servlet-class>
     <init-param>
         <param-name>ssoClass</param-name>
-        <param-value>com.doubotis.restwrapper.sample.SampleSSO</param-value>
+        <param-value>com.doubotis.restwrapper.servlet.sso.SampleSSO</param-value>
     </init-param>
     <init-param>
         <param-name>dispatcherClass</param-name>
