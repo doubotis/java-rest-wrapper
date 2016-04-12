@@ -99,6 +99,39 @@ To set a custom dispatcher, you can :
 1. Call `setDispatcher(Dispatcher dispatcher)` in a subclass of `APIHttpServlet` (override `onInit()` and put it inside).
 2. Tell the name of the class in `web.xml`. In this case, the `Dispatcher` subclass will be instantiated with an empty constructor.
 
+#### Predefined Dispatchers
+
+The library comes with some predefined dispatchers, like `DefaultDispatcher` (an example of very simple dispatcher implementation), `FileResourceDispatcher` (a dispatcher that is based on the .txt file) and the newer : `AnnotationDispatcher` (works with annotations).
+
+#### FileResourceDispatcher
+
+Call the constructor and pass the .txt file that will serve as a "patron" to allow the API engine to know which class to use when a case is encountered.
+```
+FileResourceDispatcher frd = new FileResourceDispatcher("/root/paths.txt");
+```
+
+The txt file must be writed as this :
+```
+GET POST PUT DELETE Base /base
+GET Elements /base/([^/]+)
+```
+In this example, the /base path will redirect to the Base class implementation. The implemention will works with GET, POST, PUT and DELETE HTTP methods.
+
+#### AnnotationDispatcher
+
+Just call the constructor. All the classes that extends `RequestImplementation` and with a `REST` annotation (don't forgot to set the path variable to what you want).
+```
+AnnotationDispatcher ad = new AnnotationDispatcher();
+```
+
+Implementation class side will work like this:
+```
+@REST(path = "/elements/([^/]+)")
+public class Elements extends RequestImplementation implements IGetHandler {
+    ...
+}
+```
+
 ### SSO
 
 This is optional. If you need your API be forbidden with a system of roles, you can extend the `SSO` abstract class to implement your own way to check. For instance, `DefaultSSO` returns true for every role asked, that means `DefaultSSO` will tell "yes" for all requests. But by overriding the `hasRole(String role)` method, you can modify this behavior to tell "no" when the role is not present for an API user key.
